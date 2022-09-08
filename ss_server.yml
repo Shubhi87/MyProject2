@@ -22,6 +22,7 @@ Resources:
               - 'sts:AssumeRole'
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/AmazonS3FullAccess
+        - arn:aws:iam::aws:policy/AdministratorAccess
 # Instance Profile
   ServerInstanceProfile: 
     Type: "AWS::IAM::InstanceProfile"
@@ -62,10 +63,6 @@ Resources:
         FromPort: 8080
         ToPort: 8080
         CidrIp: 0.0.0.0/0
-      - IpProtocol: tcp
-        FromPort: 22
-        ToPort: 22
-        CidrIp: 0.0.0.0/0
       SecurityGroupEgress:
       - IpProtocol: tcp
         FromPort: 0
@@ -80,9 +77,13 @@ Resources:
           sudo apt-get update -y
           sudo apt-get install apache2 -y
           sudo systemctl start apache2.service 
-          sudo apt install awscli
+          sudo apt-get install python3-pip -y
+          sudo pip3 install --upgrade pip
+          sudo pip3 install awscli
           cd /var/www/html 
-          sudo aws s3 sync s3://ssavbucket2/ .
+          sudo aws s3 cp s3://ssavbucket2/index.html .          
+          sudo aws s3 sync s3://ssavbucket2/ . 
+          sudo chmod 777 *
       ImageId: ami-0729e439b6769d6ab
       IamInstanceProfile: !Ref ServerInstanceProfile
       KeyName: SSSecureServer1Key
@@ -101,8 +102,8 @@ Resources:
           !Sub "${EnvironmentName}-PRIV-NETS"
       LaunchConfigurationName:
         Ref: WebAppLaunchConfig
-      MinSize: '4'
-      MaxSize: '8'
+      MinSize: '2'
+      MaxSize: '4'
       TargetGroupARNs:
       - Ref: WebAppTargetGroup
   WebAppLB:
@@ -152,4 +153,4 @@ Resources:
 Outputs:
   LoadBalancerDNSName:
     Description: The DNSName of the load balancer
-    Value: !GetAtt WebAppLB.DNSName
+    Value: !Join [ "", [ 'http://', !GetAtt WebAppLB.DNSName ]]
