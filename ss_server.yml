@@ -81,12 +81,11 @@ Resources:
           sudo pip3 install --upgrade pip
           sudo pip3 install awscli
           cd /var/www/html 
-          sudo aws s3 cp s3://ssavbucket2/index.html .          
-          sudo aws s3 sync s3://ssavbucket2/ . 
+          sudo aws s3 cp s3://ssavbucket1/index.html .          
+          sudo aws s3 sync s3://ssavbucket1/ . 
           sudo chmod 777 *
       ImageId: ami-0729e439b6769d6ab
       IamInstanceProfile: !Ref ServerInstanceProfile
-      KeyName: SSSecureServer1Key
       SecurityGroups:
       - Ref: WebServerSecGroup
       InstanceType: t3.medium
